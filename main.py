@@ -133,22 +133,15 @@ def getLocationByCordinates(latitude: int, longitude : int, accuracyLevel: int):
     
     print(latitudemin,latitudemax, longitudemin , longitudemax)
         
-    
-    # rows=  session.query(Item).filter( (Item.Latitude >=  latitudemin & Item.Latitude <= latitudemax) & (Item.longitude >= longitudemin & Item.longitude <= longitudemax )).all()
-    
-    counter  = 0
     rows=  session.query(Item).filter((  Item.Latitude >=  latitudemin ) & ( Item.Latitude <= latitudemax  ) & (Item.Longitude >= longitudemin ) & (Item.Longitude <= longitudemax)).all()
     
     lst  = []
     
     for i in rows: 
         lst.append(i)
-    
-    # print(rows)
     count = len(lst)
                                                                                                                                         
     if (rows):
-    
         message = "Fetched " +str(count) + " matching Records"
         msg = [{
          "success" : "true",
@@ -189,7 +182,6 @@ def getLocationByCordinates(latitude: int, longitude : int, accuracyLevel: int):
         if(count1 > count2):
             print(count1,count2)
         
-            
             message = "Fetched " +str(count2) + " matching Records"
             msg = [{
             "success" : "true",
@@ -205,19 +197,14 @@ def getLocationByCordinates(latitude: int, longitude : int, accuracyLevel: int):
             "message": message ,
             "data": rows_2
             }]
-        
-    
    
     session.close()
-    
     return msg
 
 
 #delete by id 
 @app.delete("/api/delete",status_code=200)
 def deleteRecords(id:int):
-    
-    
     
     reqId = id
     session = Session(bind=engine, expire_on_commit=False)
@@ -240,7 +227,6 @@ def deleteRecords(id:int):
         "message": "Record deletion failed"
         
         }]
-        
     
     session.close()
     return msg
