@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from models import Item
 from database import SessionLocal, engine ,SQLALCHEMY_DATABASE_URL
 from schema import locationData
+from flask_sqlalchemy import SQLAlchemy
 
 
 app = FastAPI()
@@ -49,13 +50,13 @@ def createRecord(create: locationData):
 
 
 @app.get("/api/get",status_code=200)
-async def getlocation(location: str):
+def getlocation(location: str):
     
     session = Session(bind=engine, expire_on_commit=False)
     
     reqLocation = location.lower()
-
-    getData = session.query(Item).get(location)
+    
+    rows = session.query(Item).filter(Item.location.contains(reqLocation)).all()
     
     session.close()
     
@@ -70,8 +71,14 @@ def getAllRecords():
     allLocationData = session.query(Item).all()
 
     session.close()
+    
+    msg = [{
+         "success" : "true",
+        "message": "Fetched all records successfully",
+        "data": allLocationData
+        }]
 
-    return allLocationData
+    return f"{msg}"
 
 @app.get("/")
 async def root():
