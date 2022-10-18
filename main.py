@@ -125,8 +125,7 @@ def getLocationByCordinates(latitude: int, longitude : int, accuracyLevel: int):
     elif(reqAccuracy >=81 ):
         level = 0.5
         
-    else: 
-        level = 2 
+    
         
         
     latitudemin  = reqlatitude-level
@@ -140,19 +139,78 @@ def getLocationByCordinates(latitude: int, longitude : int, accuracyLevel: int):
     # rows=  session.query(Item).filter( (Item.Latitude >=  latitudemin & Item.Latitude <= latitudemax) & (Item.longitude >= longitudemin & Item.longitude <= longitudemax )).all()
     
     counter  = 0
-    rows=  session.query(Item).filter((  Item.Latitude >=  latitudemin ) & ( Item.Latitude <= latitudemax  ) & (Item.Longitude >= longitudemin ) & (Item.Longitude <= longitudemax
-                                                                                                                                                    )).all()
+    rows=  session.query(Item).filter((  Item.Latitude >=  latitudemin ) & ( Item.Latitude <= latitudemax  ) & (Item.Longitude >= longitudemin ) & (Item.Longitude <= longitudemax)).all()
     
-    session.close()
-    lst = []
-    for i in rows:
-        
+    lst  = []
+    
+    for i in rows: 
         lst.append(i)
+    
+    # print(rows)
+    count = len(lst)
+                                                                                                                                        
+    if (rows):
+    
+        message = "Fetched " +str(count) + " matching Records"
+        msg = [{
+         "success" : "true",
+        "message": message ,
+        "data": rows
+        }]
+    
+    else:
         
-    print(len(lst))
+        level = 2
+        latitudemin  = reqlatitude-level
+        latitudemax  = reqlatitude+level
+        longitudemin  = reqlongitude-level
+        longitudemax  = reqlongitude+level
+        
+        rows_2=  session.query(Item).filter((  Item.Latitude >=  latitudemin ) & ( Item.Latitude <= latitudemax  ) & (Item.Longitude >= longitudemin ) & (Item.Longitude <= longitudemax)).all()
+
+        level = 1
+        latitudemin  = reqlatitude-level
+        latitudemax  = reqlatitude+level
+        longitudemin  = reqlongitude-level
+        longitudemax  = reqlongitude+level
+        
+        rows_1=  session.query(Item).filter((  Item.Latitude >=  latitudemin ) & ( Item.Latitude <= latitudemax  ) & (Item.Longitude >= longitudemin ) & (Item.Longitude <= longitudemax)).all()
+
+        
+        lst,lst2  = [],[]
+        for i in rows_2: 
+            lst.append(i)
+        count1 = len(lst)
+        
+        for i in rows_1: 
+            lst2.append(i)
+        count2 = len(lst2)
+        
+        if(count1 > count2):
+            print(count1,count2)
+        
+            
+            message = "Fetched " +str(count2) + " matching Records"
+            msg = [{
+            "success" : "true",
+            "message": message ,
+            "data": rows_1
+            }]
+        
+        else:
+            
+            message = "Fetched " +str(count1) + " matching Records"
+            msg = [{
+            "success" : "true",
+            "message": message ,
+            "data": rows_2
+            }]
+        
     
+   
+    session.close()
     
-    return rows
+    return msg
 
 
 
