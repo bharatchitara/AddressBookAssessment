@@ -1,3 +1,4 @@
+from typing import Optional
 import models
 from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy.orm import Session
@@ -213,6 +214,71 @@ def getLocationByCordinates(latitude: int, longitude : int, accuracyLevel: int):
     return msg
 
 
+
+@app.delete("/api/delete",status_code=200)
+def deleteRecords(id:int):
+    
+    reqId = id
+    session = Session(bind=engine, expire_on_commit=False)
+
+    deleteData = session.query(Item).filter(Item.id == reqId).delete()
+    session.commit()
+    
+    if(deleteData):
+        
+        msg = [{
+        "success": "true",
+        "message": "Record deleted successfully"
+        
+        }]
+        
+    else:
+        
+        msg = [{
+        "success": "false",
+        "message": "Record deletion failed"
+        
+        }]
+        
+    
+    session.close()
+    return msg
+    
+
+
+@app.patch("/api/updatelocation/{id}",status_code=201)
+def updateRecords(id:int, location:  Optional[str] = None,  latitude : Optional[int] = 0, longitude:  Optional[int] = 0 ):
+    
+    reqId= id
+    reqlocation = location
+    reqlatitude = latitude
+    reqlongitude = longitude    
+    
+    session = Session(bind=engine, expire_on_commit=False)
+    
+    updateRecord = session.query(Item).filter(Item.id == reqId).update( {Item.location : reqlocation, Item.Latitude : reqlatitude, Item.Longitude : reqlongitude} )
+    
+    
+    session.close()
+    
+    if(updateRecord == 1 ):
+    
+        msg = [{
+        "success": "true",
+        "message": "Record updated successfully"
+        
+        
+        }]
+        
+    else:
+        msg = [{
+        "success": "false ",
+        "message": "Record updation failed"
+        
+        }]
+    
+    return msg
+    
 
 @app.get("/api/getAll",status_code=200)
 def getAllRecords():
