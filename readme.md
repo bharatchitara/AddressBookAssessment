@@ -5,4 +5,4 @@
 5. open the web browser and search to access the swagger docs:  http://127.0.0.1:8000/docs   or  localhost:8000/docs 
 
 
-![swaggerDoc](https://github.com/bharatchitara/test_django/blob/master/login1/static/assets/img/lib.png)
+![swaggerDoc](https://github.com/bharatchitara/AddressBookAssessment/blob/master/pic2.png)
