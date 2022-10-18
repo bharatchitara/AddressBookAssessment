@@ -5,13 +5,11 @@ from sqlalchemy.orm import Session
 from models import Item
 from database import SessionLocal, engine ,SQLALCHEMY_DATABASE_URL
 from schema import locationData
-from flask_sqlalchemy import SQLAlchemy
 
 
 app = FastAPI()
 
 models.Base.metadata.create_all(bind=engine)
-
 
 
 def get_db():
@@ -22,9 +20,9 @@ def get_db():
         db.close()
 
 
-
+#create API
 @app.post("/api/createlocation",status_code=201)
-def createRecord(create: locationData):
+def createRecord(create: locationData):                                              
     
     session = Session(bind=engine, expire_on_commit=False)
 
@@ -37,7 +35,6 @@ def createRecord(create: locationData):
     id = createLocation.id
     
     if(id):
-    
         msg  = [
         {
         "success" : "true",
@@ -49,18 +46,16 @@ def createRecord(create: locationData):
         
     else:
         
-         msg  = [
+        msg  = [
         {
         "success" : "false",
         "message": "Some Error occured"
     }
         ]
-        
     
     return msg
 
-
-
+#get api by city name
 @app.get("/api/getcity",status_code=200)
 def getLocationByCityName(location: str):
     
@@ -68,8 +63,7 @@ def getLocationByCityName(location: str):
     
     reqLocation = location.lower()
     
-    
-    
+    #location is case-insensiive and search using contanins method 
     rows=  session.query(Item).filter(Item.location.contains(reqLocation)).all()
     
     session.close()
@@ -77,7 +71,6 @@ def getLocationByCityName(location: str):
     if(rows):
     
         message = "Fetched Records with CityName: "+ reqLocation
-    
         msg = [{
          "success" : "true",
         "message": message ,
@@ -95,11 +88,13 @@ def getLocationByCityName(location: str):
     return msg
     
 
-
+#get api by cordinates
 @app.get("/api/getcordinates",status_code=200)
 def getLocationByCordinates(latitude: int, longitude : int, accuracyLevel: int):
     
     session = Session(bind=engine, expire_on_commit=False)
+    
+    #latitude, longitude and accuracyLevel are required
     
     reqlatitude = latitude
     reqlongitude = longitude
@@ -107,6 +102,8 @@ def getLocationByCordinates(latitude: int, longitude : int, accuracyLevel: int):
     reqAccuracy = accuracyLevel
     
     level = 0
+    
+    #based on accuracy level the result will displayed, acceracy level input - (0 to 100)
     
     if(reqAccuracy < 0): 
         level = 5
@@ -161,6 +158,8 @@ def getLocationByCordinates(latitude: int, longitude : int, accuracyLevel: int):
     
     else:
         
+        #if not records are found above, this block will automatically find the nearest result with default accuracy of >40% to <80%. 
+        
         level = 2
         latitudemin  = reqlatitude-level
         latitudemax  = reqlatitude+level
@@ -214,9 +213,11 @@ def getLocationByCordinates(latitude: int, longitude : int, accuracyLevel: int):
     return msg
 
 
-
+#delete by id 
 @app.delete("/api/delete",status_code=200)
 def deleteRecords(id:int):
+    
+    
     
     reqId = id
     session = Session(bind=engine, expire_on_commit=False)
@@ -245,7 +246,7 @@ def deleteRecords(id:int):
     return msg
     
 
-
+#update by id(also works with parial and full table data update)
 @app.patch("/api/updatelocation/{id}",status_code=201)
 def updateRecords(id:int, location:  Optional[str] = None,  latitude : Optional[int] = 0, longitude:  Optional[int] = 0 ):
     
@@ -258,7 +259,6 @@ def updateRecords(id:int, location:  Optional[str] = None,  latitude : Optional[
     
     updateRecord = session.query(Item).filter(Item.id == reqId).update( {Item.location : reqlocation, Item.Latitude : reqlatitude, Item.Longitude : reqlongitude} )
     
-    
     session.close()
     
     if(updateRecord == 1 ):
@@ -266,20 +266,18 @@ def updateRecords(id:int, location:  Optional[str] = None,  latitude : Optional[
         msg = [{
         "success": "true",
         "message": "Record updated successfully"
-        
-        
         }]
         
     else:
         msg = [{
         "success": "false ",
         "message": "Record updation failed"
-        
         }]
     
     return msg
     
 
+#find all records(no input required)
 @app.get("/api/getAll",status_code=200)
 def getAllRecords():
     
@@ -304,9 +302,3 @@ def getAllRecords():
             }]
 
     return msg
-
-
-
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
